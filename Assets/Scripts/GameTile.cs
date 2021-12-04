@@ -2,11 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class GameTile : MonoBehaviour
 {
     public bool HasPath => distance != int.MaxValue;
     public bool IsAlternative { get; set; }
-
+    public Direction Pathdirection
+    {
+        get;
+        private set;
+    }
 
     [SerializeReference]
     Transform arrow = default;
@@ -18,6 +24,26 @@ public class GameTile : MonoBehaviour
         southRotation = Quaternion.Euler(90f, 180f, 0f),
         westRotation = Quaternion.Euler(90f, 270f, 0f);
 
+    public Vector3 ExitPoint
+    {
+        get;
+        private set;
+    }
+
+    GameTileContent content;
+    public GameTileContent Content
+    {
+        get => content;
+        set
+        {
+            if (content != null)
+            {
+                content.Recycle();
+            }
+            content = value;
+            content.transform.localPosition = transform.localPosition;
+        }
+    }
 
 
     public static void MakeEastWestNeighbors(GameTile west, GameTile east)
@@ -41,26 +67,31 @@ public class GameTile : MonoBehaviour
     {
         distance = 0;
         nextOnPath = null;
+        ExitPoint = transform.localPosition;
     }
 
-    GameTile GrowPathTo(GameTile neighbor)
+    GameTile GrowPathTo(GameTile neighbor, Direction direction)
     {
         Debug.Assert(HasPath, "no Path!");
         if (!HasPath || neighbor == null || neighbor.HasPath) return null;
         neighbor.distance = distance + 1;
         neighbor.nextOnPath = this;
-        return neighbor;
+        neighbor.Pathdirection = direction;
+        neighbor.ExitPoint = (neighbor.transform.localPosition + transform.localPosition) * .5f;
+        return neighbor.content.Type != GameTileContentType.Wall ? neighbor : null;
     }
 
-    public GameTile GrowPathNorth() => GrowPathTo(north);
+    public GameTile GrowPathNorth() => GrowPathTo(north, Direction.South);
 
-    public GameTile GrowPathSouth() => GrowPathTo(south);
-
-
-    public GameTile GrowPathEast() => GrowPathTo(east);
+    public GameTile GrowPathSouth() => GrowPathTo(south, Direction.North);
 
 
-    public GameTile GrowPathWest() => GrowPathTo(west);
+    public GameTile GrowPathEast() => GrowPathTo(east, Direction.West);
+
+
+    public GameTile GrowPathWest() => GrowPathTo(west, Direction.East);
+
+    public GameTile NextTilePath => nextOnPath;
 
     public void ShowPath()
     {
@@ -77,5 +108,10 @@ public class GameTile : MonoBehaviour
             nextOnPath == west ? westRotation :
             westRotation;
 
+    }
+
+    public void HidePath()
+    {
+        arrow.gameObject.SetActive(false);
     }
 }

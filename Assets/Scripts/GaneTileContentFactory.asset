@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f09490bccf990354a814864e1892df25, type: 3}
+  m_Name: GaneTileContentFactory
+  m_EditorClassIdentifier: 
+  destinationPrefab: {fileID: 7401410252997604017, guid: 8141ef654ede2c3428ab6c81bc13e4f1,
+    type: 3}
+  emptyPrefab: {fileID: 8356391210715784645, guid: 692773c39f09d434dbb914f73bffba5a,
+    type: 3}
+  wallPrefab: {fileID: 7175906225347539152, guid: 26a421f2cc785d5429b345dff2718ff5,
+    type: 3}
+  spawnPoint: {fileID: 4530166276176556128, guid: 923507e2a44462248bc0520f09807556,
+    type: 3}

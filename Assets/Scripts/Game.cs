@@ -9,10 +9,20 @@ public class Game : MonoBehaviour
 
     [SerializeReference]
     GameBoard board = default;
+    [SerializeField]
+    GameTileContentFactory tileContentFactory = default;
+    [SerializeField]
+    EnemyFactory enemyFactory = default;
 
+    [SerializeField, Range(0.1f, 10f)]
+    float spawnSpeed = 1.0f;
+
+    float spawnProgress;
+    EnemyCollection enemies = new EnemyCollection();
     private void Awake()
     {
-        board.Initialize(boardSize);
+        board.Initialize(boardSize, tileContentFactory);
+        board.ShowGrid = true;
     }
 
     private void OnValidate()
@@ -25,5 +35,71 @@ public class Game : MonoBehaviour
         {
             boardSize.y = 2;
         }
+    }
+
+    Ray TouchRay => Camera.main.ScreenPointToRay(Input.mousePosition);
+    private void Update()
+    {
+        spawnProgress += spawnSpeed * Time.deltaTime;
+        while(spawnProgress >= 1f)
+        {
+            spawnProgress -= 1f;
+            SpawnEnemy();
+        }
+        enemies.GameUpdate();
+        if (Input.GetMouseButtonDown(0))
+        {
+            HandelTouch(0);
+        }
+        else if(Input.GetMouseButtonDown(1))
+        {
+            HandelTouch(1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            board.ShowPath = !board.ShowPath;
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            board.ShowGrid = !board.ShowGrid;
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            board.ShowGrid = !board.ShowGrid;
+        }
+    }
+
+    void HandelTouch(int operate)
+    {
+        GameTile tile = board.GetTile(TouchRay);
+        if (tile != null)
+        {
+            switch (operate)
+            {
+                case 0:
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        board.ToggleSpawnPoint(tile);
+                    }
+                    else
+                    {
+                    board.ToggleDestination(tile);
+
+                    }
+                    break;
+                case 1:
+                    board.ToggleWall(tile);
+                    break;
+            }
+        }
+    }
+
+    void SpawnEnemy()
+    {
+        GameTile spwanPoint = board.GetSpawnPoint(Random.Range(0, board.SpwanPointCount));
+        Enemy enemy = enemyFactory.Get();
+        enemy.SpawnOn(spwanPoint);
+        enemies.Add(enemy);
     }
 }
