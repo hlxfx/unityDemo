@@ -63,6 +63,8 @@ public class GameBoard : MonoBehaviour
     Vector2Int size;
     GameTileContentFactory gameTileContentFactory;
 
+    List<GameTileContent> updatingContent = new List<GameTileContent>();
+
     public int SpwanPointCount => spawnPoint.Count;
 
     public void Initialize (Vector2Int size ,GameTileContentFactory gameTileContentFactory)
@@ -165,7 +167,7 @@ public class GameBoard : MonoBehaviour
 
     public GameTile GetTile(Ray ray)
     {
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1))
         {
             int x = (int)(hit.point.x + size.x * 0.5f);
             int y = (int)(hit.point.z + size.y * 0.5f);
@@ -229,9 +231,45 @@ public class GameBoard : MonoBehaviour
         }
     }
 
+    public void ToggleTower(GameTile tile)
+    {
+        if (tile.Content.Type == GameTileContentType.Tower)
+        {
+            tile.Content = gameTileContentFactory.Get(GameTileContentType.Empty);
+            FindPaths();
+            updatingContent.Remove(tile.Content);
+        }
+        else if (tile.Content.Type == GameTileContentType.Empty)
+        {
+            tile.Content = gameTileContentFactory.Get(GameTileContentType.Tower);
+            if (FindPaths())
+            {
+                updatingContent.Add(tile.Content);
+            }
+            else
+            {
+                tile.Content = gameTileContentFactory.Get(GameTileContentType.Empty);
+                FindPaths();
+            }
+        }
+        else if (tile.Content.Type == GameTileContentType.Wall)
+        {
+            tile.Content = gameTileContentFactory.Get(GameTileContentType.Tower);
+            updatingContent.Add(tile.Content);
+        }
+    }
+
     public GameTile GetSpawnPoint(int index)
     {
         return spawnPoint[index];
+    }
+
+    public void GameUpdate()
+    {
+        for(int i = 0; i < updatingContent.Count; i++)
+        {
+            updatingContent[i].GameUpdate();
+        }
     }
 
 }

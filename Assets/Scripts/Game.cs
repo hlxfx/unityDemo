@@ -28,7 +28,7 @@ public class Game : MonoBehaviour
     private void OnValidate()
     {
         if (boardSize.x < 2)
-        {
+        {   
             boardSize.x = 2;
         }
         if (boardSize.y < 2)
@@ -47,6 +47,8 @@ public class Game : MonoBehaviour
             SpawnEnemy();
         }
         enemies.GameUpdate();
+        Physics.SyncTransforms();
+        board.GameUpdate();
         if (Input.GetMouseButtonDown(0))
         {
             HandelTouch(0);
@@ -84,12 +86,20 @@ public class Game : MonoBehaviour
                     }
                     else
                     {
-                    board.ToggleDestination(tile);
-
+                        board.ToggleDestination(tile);
                     }
                     break;
                 case 1:
-                    board.ToggleWall(tile);
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        board.ToggleDestination(tile);
+                    }
+                    else
+                    {
+                        board.ToggleWall(tile);
+                    }
+                    board.ToggleTower(tile);
+
                     break;
             }
         }

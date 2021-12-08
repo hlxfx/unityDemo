@@ -30,6 +30,9 @@ public class GameTile : MonoBehaviour
         private set;
     }
 
+    /// <summary>
+    /// GameTile 是 每一块地面的定义  上面的content 是他的详细说明，如 是墙还是塔 还是 出生/目的 点
+    /// </summary>
     GameTileContent content;
     public GameTileContent Content
     {
@@ -78,8 +81,9 @@ public class GameTile : MonoBehaviour
         neighbor.nextOnPath = this;
         neighbor.Pathdirection = direction;
         neighbor.ExitPoint = neighbor.transform.localPosition + direction.GetHalfVector();
-        return neighbor.content.Type != GameTileContentType.Wall ? neighbor : null;
+        return neighbor.content.BlocksPath ? null : neighbor;
     }
+
 
     public GameTile GrowPathNorth() => GrowPathTo(north, Direction.South);
 
