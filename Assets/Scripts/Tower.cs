@@ -7,11 +7,13 @@ public class Tower : GameTileContent
     [SerializeField, Range(1.5f, 10f)]
     float targetingRange = 1.5f;
     [SerializeField]
-    Transform turret = default;
-
+    Transform turret = default, laserBeam = default;
+    [SerializeField, Range(1f, 100f)]
+    float damagePerSecond = 10f;
 
     static Collider[] targetBuffer = new Collider[1];
     TargetPoint target;
+    Vector3 laserBeamScale;
 
     public override void GameUpdate()
     {
@@ -20,13 +22,29 @@ public class Tower : GameTileContent
         {
             Shoot();
         }
+        else
+        {
+            laserBeam.localScale = Vector3.zero;
+        }
     }
            
     public void Shoot()
     {
         Vector3 point = target.Position;
         turret.LookAt(point);
+        laserBeam.localRotation = turret.localRotation;
+        float d = Vector3.Distance(turret.position, point);
+        laserBeamScale.z = d;
+        laserBeam.localScale = laserBeamScale;
+        laserBeam.localPosition = turret.localPosition + .5f * d * laserBeam.forward;
+        target.enemy.ApplyDamage(damagePerSecond * Time.deltaTime);
     }
+
+    private void Awake()
+    {
+        laserBeamScale = laserBeam.localScale;
+    }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

@@ -46,9 +46,6 @@ public class Game : MonoBehaviour
             spawnProgress -= 1f;
             SpawnEnemy();
         }
-        enemies.GameUpdate();
-        Physics.SyncTransforms();
-        board.GameUpdate();
         if (Input.GetMouseButtonDown(0))
         {
             HandelTouch(0);
@@ -70,6 +67,9 @@ public class Game : MonoBehaviour
         {
             board.ShowGrid = !board.ShowGrid;
         }
+        enemies.GameUpdate();
+        Physics.SyncTransforms();
+        board.GameUpdate();
     }
 
     void HandelTouch(int operate)

@@ -62,7 +62,6 @@ public class GameBoard : MonoBehaviour
     GameTile[] tiles;
     Vector2Int size;
     GameTileContentFactory gameTileContentFactory;
-
     List<GameTileContent> updatingContent = new List<GameTileContent>();
 
     public int SpwanPointCount => spawnPoint.Count;
@@ -235,9 +234,9 @@ public class GameBoard : MonoBehaviour
     {
         if (tile.Content.Type == GameTileContentType.Tower)
         {
+            updatingContent.Remove(tile.Content);
             tile.Content = gameTileContentFactory.Get(GameTileContentType.Empty);
             FindPaths();
-            updatingContent.Remove(tile.Content);
         }
         else if (tile.Content.Type == GameTileContentType.Empty)
         {

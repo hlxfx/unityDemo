@@ -35,4 +35,9 @@ public class GameTileContent : MonoBehaviour
     {
 
     }
+
+    private void OnDestroy()
+    {
+        Recycle();
+    }
 }

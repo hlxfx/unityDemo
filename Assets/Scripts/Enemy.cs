@@ -7,11 +7,12 @@ public class Enemy : MonoBehaviour
     EnemyFactory originFactory;
     GameTile tileFrom, tileTo;
     Vector3 positionFrom, positionTo;
-    float progress, progressFactor;
+    float progress, progressFactor; //敌人移动进度条及倍速
     Direction direction;
     DirectionChange directionChange;
     float directionAngelFrom, directionAngelTo;
     float pathOffset, speed;
+    float Health { get; set; }
 
     [SerializeField]
     Transform model = default;
@@ -36,6 +37,55 @@ public class Enemy : MonoBehaviour
         tileTo = tile.NextTilePath;
         progress = 0f;
         PrepareIntro();
+    }
+
+    public bool GameUpdate()
+    {
+        if(Health < 0)
+        {
+            originFactory.ReClaim(gameObject);
+            return false;
+        }
+        progress += Time.deltaTime * progressFactor;
+        while(progress >= 1f)
+        {
+            //tileFrom = tileTo;
+            //tileTo = tileTo.NextTilePath;
+            if(tileTo == null)
+            {
+                originFactory.ReClaim(gameObject);
+                return false;
+            }
+            progress = (progress - 1f) / progressFactor;
+            PrepareNextState();
+            progress *= progressFactor;
+        }
+        //transform.localPosition = Vector3.LerpUnclamped(positionFrom, positionTo, progress);
+        //当方向发生变化时，我们绝对不能在Enemy.GameUpdate中完全插入位置，因为移动是通过旋转来完成的。
+        if (directionChange == DirectionChange.None)
+        {
+            transform.localPosition = Vector3.LerpUnclamped(positionFrom, positionTo, progress);
+        }
+        else
+        {
+            float angel = Mathf.LerpUnclamped(directionAngelFrom, directionAngelTo, progress);
+            transform.localRotation = Quaternion.Euler(0f, angel, 0f);
+        }
+        return true;
+    }
+
+    public void Initialize(float scale, float speed, float pathOffset)
+    {
+        model.localScale = new Vector3(scale, scale, scale);
+        Scale = scale;
+        this.pathOffset = pathOffset;
+        this.speed = speed;
+        Health = 100f * scale;
+    }
+
+    public void ApplyDamage(float damage)
+    {
+        Health -= damage;
     }
 
     void PrepareIntro()
@@ -65,7 +115,7 @@ public class Enemy : MonoBehaviour
         tileFrom = tileTo;
         tileTo = tileTo.NextTilePath;
         positionFrom = positionTo;
-        if(tileTo == null)
+        if (tileTo == null)
         {
             PrepareOutro();
             return;
@@ -120,43 +170,5 @@ public class Enemy : MonoBehaviour
         model.localPosition = new Vector3(pathOffset, 0f);
         transform.localPosition = positionFrom;
         progressFactor = speed / (Mathf.PI * Mathf.Max(Mathf.Abs(pathOffset), 0.2f));
-    }
-
-    public bool GameUpdate()
-    {
-        progress += Time.deltaTime * progressFactor;
-        while(progress >= 1f)
-        {
-            //tileFrom = tileTo;
-            //tileTo = tileTo.NextTilePath;
-            if(tileTo == null)
-            {
-                originFactory.ReClaim(gameObject);
-                return false;
-            }
-            progress = (progress - 1f) / progressFactor;
-            PrepareNextState();
-            progress *= progressFactor;
-        }
-        //transform.localPosition = Vector3.LerpUnclamped(positionFrom, positionTo, progress);
-        //当方向发生变化时，我们绝对不能在Enemy.GameUpdate中完全插入位置，因为移动是通过旋转来完成的。
-        if (directionChange == DirectionChange.None)
-        {
-            transform.localPosition = Vector3.LerpUnclamped(positionFrom, positionTo, progress);
-        }
-        else
-        {
-            float angel = Mathf.LerpUnclamped(directionAngelFrom, directionAngelTo, progress);
-            transform.localRotation = Quaternion.Euler(0f, angel, 0f);
-        }
-        return true;
-    }
-
-    public void Initialize(float scale, float speed, float pathOffset)
-    {
-        model.localScale = new Vector3(scale, scale, scale);
-        Scale = scale;
-        this.pathOffset = pathOffset;
-        this.speed = speed;
     }
 }
