@@ -17,6 +17,7 @@ public class Game : MonoBehaviour
     [SerializeField, Range(0.1f, 10f)]
     float spawnSpeed = 1.0f;
 
+    TowerType selectedType;
     float spawnProgress;
     EnemyCollection enemies = new EnemyCollection();
     private void Awake()
@@ -67,6 +68,14 @@ public class Game : MonoBehaviour
         {
             board.ShowGrid = !board.ShowGrid;
         }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            selectedType = TowerType.Laser;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            selectedType = TowerType.Mortar;
+        }
         enemies.GameUpdate();
         Physics.SyncTransforms();
         board.GameUpdate();
@@ -98,7 +107,7 @@ public class Game : MonoBehaviour
                     {
                         board.ToggleWall(tile);
                     }
-                    board.ToggleTower(tile);
+                    board.ToggleTower(tile,selectedType);
 
                     break;
             }

@@ -11,6 +11,7 @@ public class GameTileContent : MonoBehaviour
 {
     [SerializeField]
     GameTileContentType type = default;
+
     public GameTileContentType Type => type;
 
     public bool BlocksPath => Type == GameTileContentType.Wall || Type == GameTileContentType.Tower;
